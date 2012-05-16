@@ -5,7 +5,7 @@ const char HANDSHAKE_FRAME = '&';
 void setup()
 {
   Serial.begin(9600);
-  handShake();
+//  handShake();
 }
 
 void loop(){
@@ -28,11 +28,11 @@ void loop(){
         // messahe with unknown command
         break;
       }
-      handShake(); 
+//      handShake(); 
     } 
-    else if (incomingByte == HANDSHAKE_FRAME) {
-      sendMessage('A', 180);
-    }
+//    else if (incomingByte == HANDSHAKE_FRAME) {
+//      sendMessage('A', 180);
+//    }
   }
 }
 
