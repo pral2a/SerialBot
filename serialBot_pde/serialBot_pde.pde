@@ -42,6 +42,7 @@ void serialEvent(Serial myPort) {
         indexBuffer = 0; // Rese
       } 
       else {
+//        firstContact = false; tornar a esperar a rebre un handshake per seguir.
         handShake();
       }
     }
