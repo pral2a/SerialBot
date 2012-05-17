@@ -5,7 +5,7 @@ const char HANDSHAKE_FRAME = '&';
 void setup()
 {
   Serial.begin(9600);
-  establishContact();
+//  handShake();
 }
 
 void loop(){
@@ -28,15 +28,18 @@ void loop(){
         // messahe with unknown command
         break;
       }
-      handShake(); 
+//      handShake(); 
     } 
+//    else if (incomingByte == HANDSHAKE_FRAME) {
+//      sendMessage('A', 180);
+//    }
   }
 }
 
 
 
 void handShake(){
-//  Serial.flush(); // necessari? oju canviar de funcio
+  Serial.flush(); // necessari?
   Serial.write(HANDSHAKE_FRAME);
 }
 
@@ -50,16 +53,6 @@ void sendMessage(char command, int value){
   Serial.write(command);
   sendBinaryInteger(value);
 }
-
-void establishContact() {
-  while (Serial.available() <= 0) {
-    handShake();
-    delay(300);
-  }
-}
-
-
-
 
 
 

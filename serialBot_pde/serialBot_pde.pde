@@ -2,9 +2,13 @@ import processing.serial.*;
 
 Serial myPort;
 
-public static final int MESSAGE_BYTES  = 4  ; // the total bytes in a message
+public static final int MESSAGE_BYTES  = 4; // the total bytes in a message
 public static final char HEADER_FRAME = 'H';
-public static final char HANDSHAKE_FRAME = '&';
+public static final char HANDSHAKE_FRAME = '&'; // placeholder
+int serialBuffer[];
+int indexBuffer = 0;
+//int[] indexBuffer = new int[MESSAGE_BYTES]; 
+boolean firstContact = false;
 
 
 void setup()
@@ -16,54 +20,43 @@ void setup()
 }
 
 void draw() {
-  if (myPort.availabe() >= MESSAGE_BYTES) {
-    char incomingByte = myPort.read()
-      if (incomingByte == HEADER_FRAME) {
-        char command = myPort.read();
-        int value = myPort.read() * 256 + value;
-      } 
-      else if (incomingByte == HANDSHAKE_FRAME) {
-        sendMessage('A', 180);
-      }
-  }
 }
 
+void serialEvent(Serial myPort) {
+  int incommingByte = myPort.read();
+  if (firstContact == false) {
+    if (incommingByte == HANDSHAKE_FRAME) { 
+      myPort.clear();         
+      firstContact = true; 
+      handShake();
+    }
+  } 
+  else {
+    serialBuffer[indexBuffer] = incommingByte;
+    indexBuffer++;
+    if (indexBuffer > MESSAGE_BYTES ) {
+      if (incommingByte == HEADER_FRAME) {
+        int command = serialBuffer[0];
+        int value = serialBuffer[2] * 256 + serialBuffer[1];
+        handShake();
+        indexBuffer = 0; // Rese
+      } 
+      else {
+        handShake();
+      }
+    }
+  }
+}
 
 void sendMessage(char command, int value) {
   myPort.write(HANDSHAKE_FRAME);
   myPort.write(command);
   myPort.write((char)(value / 256));
   myPort.write(value & 0xff);
+  //  myPort.write((char)value & 0xff); // check...
 }
 
 void handShake() {
-  myPort.flush(); // necessari?
-  myPort.write(HAND_SHAKE);
+  myPort.clear(); // necessari?
+  myPort.write(HANDSHAKE_FRAME);
 }
-
-/*
-
-Serial with buffer
-
-byte bufferArray[MESSAGE_BYTES]; // Oju overflow?
-char index;
-
-void loop() {
-
-  if (Serial.available()) { 
-    bufferArray[index] = Serial.read(); 
-    index++;
-  } 
-  else {  
-    index = 0;
-  } 
-  if ((index > MESSAGE_BYTES)) {
-    index = 0;
-  } 
-  if (bufferArray[0]== HEADER_FRAME)
-  {
-    // go
-  }
-}
-*/
-
