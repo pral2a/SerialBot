@@ -54,7 +54,7 @@ void sendMessage(char command, int value){
 void establishContact() {
   while (Serial.available() <= 0) {
     handShake();
-    delay(300);
+    delay(400);
   }
 }
 
