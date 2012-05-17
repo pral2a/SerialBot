@@ -14,7 +14,7 @@ boolean firstContact = false;
 void setup()
 {
   size(100, 100);
-  String portName = Serial.list()[1];
+  String portName = Serial.list()[0];
   myPort = new Serial(this, portName, 9600);
   handShake();
 }
