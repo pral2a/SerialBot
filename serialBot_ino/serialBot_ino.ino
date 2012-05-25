@@ -1,42 +1,73 @@
 const int  MESSAGE_BYTES  = 4  ; // the total bytes in a message
-const char HEADER_FRAME = 'H';
-const char HANDSHAKE_FRAME = '&'; // placeholder
+const char HEADER_FRAME = '#'; // DEC 33
+const char HANDSHAKE_FRAME = '!'; // DEC 35
+const long SERIAL_SPEED = 57600;
+
+
+const int debugLed = 13;
+
+boolean readyTX = false;
 
 void setup()
 {
-  Serial.begin(9600);
-  establishContact();
+  pinMode(debugLed, OUTPUT);
+  Serial.begin(SERIAL_SPEED);
+  delay(500);
+  handShake();  
 }
 
 void loop(){
-  if ( Serial.available() >= MESSAGE_BYTES)
-  {
-    char incomingByte = Serial.read();
-    if(incomingByte == HEADER_FRAME)
-    {
-      char command = Serial.read();
-      int value = Serial.read() * 256; 
-      value = value + Serial.read();
-      switch (command) {
-      case 'A':
-        // function 
-        break;
-      case 'B':
-        // function 
-        break;
-      default: 
-        // messahe with unknown command
-        break;
-      }
-      handShake(); 
-    } 
+  sendMessage('B', 100);
+  delay(1000);
+  sendMessage('A', 100);
+  delay(1000);
+}
+
+void runCommand(int command, int value) {
+  switch (command) {
+  case 'A':
+    // function
+    digitalWrite(debugLed, HIGH);
+    break;
+  case 'B':
+    // function 
+    digitalWrite(debugLed, LOW);
+    break;
+  default: 
+    // messahe with unknown command
+    break;
   }
 }
 
 
 
+
+
+
+void listenSerial() {
+  if ( Serial.available() > 0){
+    char incommingByte = Serial.read();
+    if (incommingByte == HANDSHAKE_FRAME) { 
+      readyTX = true;
+    } 
+    else if(incommingByte == HEADER_FRAME)
+    {
+      char command = Serial.read();
+      int value = Serial.read() * 256; 
+      value = value + Serial.read();
+      runCommand(command, value);
+      handShake(); 
+    } 
+    Serial.flush();
+  } 
+}
+
+void serialEvent(){
+  listenSerial();
+}
+
+
 void handShake(){
-//  Serial.flush(); // necessari? oju canviar de funcio
   Serial.write(HANDSHAKE_FRAME);
 }
 
@@ -46,17 +77,51 @@ void sendBinaryInteger(int value){
 }
 
 void sendMessage(char command, int value){
-  Serial.write(HEADER_FRAME);
-  Serial.write(command);
-  sendBinaryInteger(value);
+  while (readyTX == true) {
+    Serial.write(HEADER_FRAME);
+    Serial.write(command);
+    sendBinaryInteger(value);
+    readyTX = false;
+  }
+  listenSerial();
 }
 
-void establishContact() {
-  while (Serial.available() <= 0) {
-    handShake();
-    delay(400);
+//void sendMessage(char sendCommand, int sendValue){
+//  if (readyTX == true) {
+//    Serial.write(HEADER_FRAME);
+//    Serial.write(sendCommand);
+//    sendBinaryInteger(sendValue);
+//    readyTX = false;
+//  } 
+//  else {
+//    listenSerial();
+//    delay(100);
+//    sendMessage(sendCommand, sendValue);
+//  }
+//}
+
+
+void statusLed() {
+  if (readyTX == true) {
+    digitalWrite(debugLed, HIGH); 
+  } 
+  else {
+    digitalWrite(debugLed, LOW); 
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
