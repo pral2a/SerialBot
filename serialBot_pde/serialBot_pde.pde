@@ -5,7 +5,7 @@ Serial myPort;
 int MESSAGE_BYTES  = 4; // the total bytes in a message
 int HEADER_FRAME = '#'; // 33
 int HANDSHAKE_FRAME = '!'; // 35
-int SERIAL_SPEED = 9600;
+int SERIAL_SPEED= 9600;
 
 
 int messageCounter = MESSAGE_BYTES-1;

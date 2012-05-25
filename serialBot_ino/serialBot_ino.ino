@@ -7,7 +7,7 @@ const long SERIAL_SPEED = 9600;
 const int debugLed = 13;
 
 boolean readyTX = false;
-     
+
 
 void setup()
 {
@@ -18,7 +18,7 @@ void setup()
 }
 
 void loop(){
-//  lifeGuard();
+  //  lifeGuard();
   sendMessage('B', 100);
   delay(1000);
   sendMessage('A', 100);
@@ -48,6 +48,7 @@ void listenSerial() {
     char incommingByte = Serial.read();
     if (incommingByte == HANDSHAKE_FRAME) { 
       readyTX = true;
+      Serial.flush();
     } 
     else if(incommingByte == HEADER_FRAME)
     {
@@ -55,10 +56,10 @@ void listenSerial() {
       int value = Serial.read() * 256; 
       value = value + Serial.read();
       runCommand(command, value);
+      Serial.flush();
       delay(500);
       handShake(); 
     } 
-    Serial.flush();
   } 
 }
 
@@ -113,6 +114,7 @@ void statusLed() {
     digitalWrite(debugLed, LOW); 
   }
 }
+
 
 
 
