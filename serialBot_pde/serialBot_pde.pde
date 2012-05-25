@@ -5,7 +5,7 @@ Serial myPort;
 int MESSAGE_BYTES  = 4; // the total bytes in a message
 int HEADER_FRAME = '#'; // 33
 int HANDSHAKE_FRAME = '!'; // 35
-int SERIAL_SPEED = 57600;
+int SERIAL_SPEED = 9600;
 
 
 int messageCounter = MESSAGE_BYTES-1;
@@ -22,20 +22,20 @@ void setup()
 
 void draw() {
   sendMessage('A', 100);
-  delay(1000);
+  delay(2000);
   sendMessage('B', 100);
-  delay(1000);
+  delay(2000);
 }
 
 void runCommand(int command, int value) {
   switch (command) {
   case 'A':
     // function
-    println("RUN function:" + command + " " + value);
+    println("RUN function: A" + value);
     break;
   case 'B':
     // function 
-    println("RUN function:" + command + " " + value);
+    println("RUN function: B" + value);
     break;
   default: 
     // message with unknown command
@@ -48,12 +48,17 @@ void runCommand(int command, int value) {
 
 
 void serialEvent(Serial myPort) {
+  listenSerial();
+}
+
+void listenSerial() {
   try {
     int incommingByte = myPort.read(); 
     if (incommingByte == HANDSHAKE_FRAME) { 
       readyTX = true;
       myPort.clear();
       println("readyTX OK");
+      delay(500);
       handShake();
     } 
     else {
@@ -66,8 +71,6 @@ void serialEvent(Serial myPort) {
           int value = serialBuffer[3] * 256 + serialBuffer[2];
           bufferIndex = 0; // Reset
           runCommand(command, value);
-          //          print(command);
-          //          println(value);
           myPort.clear();
           handShake();
         }
@@ -78,9 +81,13 @@ void serialEvent(Serial myPort) {
     println("serialEvent failed!");
   }
 }
-
 void sendMessage(char command, int value) {
-  while (readyTX == true) {
+  if (readyTX == false) {
+    while (readyTX == false) {
+      listenSerial();
+    }
+  } 
+  else {
     myPort.write(HEADER_FRAME);
     myPort.write(command);
     myPort.write((char)(value / 256));
@@ -93,6 +100,7 @@ void sendMessage(char command, int value) {
     println("readyTX NO");
   }
 }
+
 
 void handShake() {
   myPort.write(HANDSHAKE_FRAME);
